@@ -1,0 +1,11 @@
+mcs.metadata:
+  componentName: Report Generator
+kind: GptComponentMetadata
+displayName: Report Generator
+instructions:
+gptCapabilities:
+  webBrowsing: true
+
+aISettings:
+  model:
+    modelNameHint: Sonnet46
