@@ -1,0 +1,120 @@
+mcs.metadata:
+  componentName: GenerateReport
+  description: Use this topic when a consultant wants to generate a new branded Stellar Recruitment candidate report from a raw CV file.
+kind: AdaptiveDialog
+inputs:
+  - kind: AutomaticTaskInput
+    propertyName: targetRole
+    description: The target role for the candidate (e.g. Carpenter, Leading Hand, Scaffolder)
+    entity: StringPrebuiltEntity
+    shouldPromptUser: true
+
+  - kind: AutomaticTaskInput
+    propertyName: chargeRate
+    description: The charge rate for the candidate (e.g. $55.00 per hour + GST)
+    entity: StringPrebuiltEntity
+    shouldPromptUser: true
+
+  - kind: AutomaticTaskInput
+    propertyName: availability
+    description: The candidate's availability (e.g. Immediate, 2 weeks notice, TBC)
+    entity: StringPrebuiltEntity
+    shouldPromptUser: true
+
+  - kind: AutomaticTaskInput
+    propertyName: englishLevel
+    description: English proficiency rating from 1 to 5 (e.g. 4/5)
+    entity: StringPrebuiltEntity
+    shouldPromptUser: true
+
+inputType:
+  properties:
+    targetRole:
+      displayName: targetRole
+      description: The target role for the candidate
+      type: String
+    chargeRate:
+      displayName: chargeRate
+      description: The charge rate for the candidate
+      type: String
+    availability:
+      displayName: availability
+      description: The candidate's availability
+      type: String
+    englishLevel:
+      displayName: englishLevel
+      description: English proficiency rating from 1 to 5
+      type: String
+
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    displayName: Generate Report
+    triggerQueries:
+      - generate a report
+      - format a CV
+      - create a candidate report
+      - new report
+      - I have a CV to format
+      - format this for Stellar
+    modelDescription: Use this topic when a consultant wants to generate a new branded Stellar Recruitment candidate report from a raw CV file.
+
+  actions:
+    - kind: SendActivity
+      id: sendActivity_gR7kXm
+      activity:
+        text:
+          - Hi! Please upload the candidate's CV file (PDF or DOCX) and I'll get started on their Stellar report.
+
+    - kind: SendActivity
+      id: sendActivity_nB2pLq
+      activity:
+        text:
+          - Got it — extracting candidate information from the CV now...
+
+    - kind: SendActivity
+      id: sendActivity_hW5jYd
+      activity:
+        text:
+          - Using AI to extract the candidate's name, work history, skills, qualifications, and location from the uploaded file.
+
+    - kind: SendActivity
+      id: sendActivity_vC9eTr
+      activity:
+        text:
+          - "I've extracted the candidate's details. To complete the report, please confirm or provide the following:\n\n- **Target role:** {Topic.targetRole}\n- **Charge rate:** {Topic.chargeRate}\n- **Availability:** {Topic.availability}\n- **English level (1–5):** {Topic.englishLevel}\n\nDoes this look correct? Reply **Yes** to proceed or let me know what needs changing."
+
+    - kind: Question
+      id: question_mF4aKs
+      variable: init:Topic.ConfirmSummary
+      prompt: Please reply Yes to confirm, or let me know any corrections.
+      entity: StringPrebuiltEntity
+      alwaysPrompt: true
+      interruptionPolicy:
+        allowInterruption: false
+
+    - kind: ConditionGroup
+      id: conditionGroup_xP1wZn
+      conditions:
+        - id: conditionItem_qD8uRb
+          condition: =Topic.ConfirmSummary = "Yes" || Topic.ConfirmSummary = "yes"
+          actions:
+            - kind: SendActivity
+              id: sendActivity_tL6oJc
+              activity:
+                text:
+                  - Report generation in progress — this will connect to a Power Automate flow to generate the branded PDF and save it to your OneDrive Stellar Reports folder.
+
+            - kind: SendActivity
+              id: sendActivity_yA3sGv
+              activity:
+                text:
+                  - "Your report for {Topic.targetRole} is ready. The branded PDF has been saved to your OneDrive Stellar Reports folder. The consultant details (Joe Ward, Build Trades Recruitment Consultant, +64 021 240 6040, joe.w@stellarrecruitment.co.nz) have been pre-filled on the report."
+
+      elseActions:
+        - kind: SendActivity
+          id: sendActivity_kE7iMh
+          activity:
+            text:
+              - No problem — please let me know what needs to be updated and I'll revise the details.

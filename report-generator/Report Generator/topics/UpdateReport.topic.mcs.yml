@@ -1,0 +1,99 @@
+mcs.metadata:
+  componentName: UpdateReport
+  description: Use this topic when a consultant wants to update or edit an existing candidate report, such as changing the charge rate, availability, target role, or work history.
+kind: AdaptiveDialog
+inputs:
+  - kind: AutomaticTaskInput
+    propertyName: candidateName
+    description: The full name of the candidate whose report needs updating
+    entity: StringPrebuiltEntity
+    shouldPromptUser: true
+
+  - kind: AutomaticTaskInput
+    propertyName: updateField
+    description: "Which field needs to be updated: Charge rate, Availability, Target role, Work history, or Other/multiple changes"
+    entity: StringPrebuiltEntity
+    shouldPromptUser: true
+
+  - kind: AutomaticTaskInput
+    propertyName: newValue
+    description: The new value for the field being updated
+    entity: StringPrebuiltEntity
+    shouldPromptUser: true
+
+inputType:
+  properties:
+    candidateName:
+      displayName: candidateName
+      description: The full name of the candidate whose report needs updating
+      type: String
+    updateField:
+      displayName: updateField
+      description: Which field needs to be updated
+      type: String
+    newValue:
+      displayName: newValue
+      description: The new value for the field being updated
+      type: String
+
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    displayName: Update Report
+    triggerQueries:
+      - update a report
+      - edit a candidate report
+      - change charge rate
+      - update availability
+      - add a new job to a report
+      - regenerate a report
+      - make changes to a report
+    modelDescription: Use this topic when a consultant wants to update or edit an existing candidate report, such as changing the charge rate, availability, target role, or work history.
+
+  actions:
+    - kind: SendActivity
+      id: sendActivity_uR2kMp
+      activity:
+        text:
+          - Sure, let's update a candidate report. I've noted the candidate name, the field to update, and the new value.
+
+    - kind: SendActivity
+      id: sendActivity_cX7nYq
+      activity:
+        text:
+          - "I'll update **{Topic.candidateName}**'s **{Topic.updateField}** to: **{Topic.newValue}**\n\nShall I regenerate the report with this change?"
+
+    - kind: Question
+      id: question_bF5wZj
+      variable: init:Topic.ConfirmUpdate
+      prompt: Reply Yes to confirm and regenerate, or let me know if anything needs adjusting.
+      entity: StringPrebuiltEntity
+      alwaysPrompt: true
+      interruptionPolicy:
+        allowInterruption: false
+
+    - kind: ConditionGroup
+      id: conditionGroup_hD9vLs
+      conditions:
+        - id: conditionItem_tA3rNe
+          condition: =Topic.ConfirmUpdate = "Yes" || Topic.ConfirmUpdate = "yes"
+          actions:
+            - kind: SendActivity
+              id: sendActivity_pW4oGx
+              activity:
+                text:
+                  - Regenerating report — this will connect to a Power Automate flow to update the branded PDF and save it to your OneDrive Stellar Reports folder.
+
+            - kind: SendActivity
+              id: sendActivity_mK6iQb
+              activity:
+                text:
+                  - "Done! The updated report for {Topic.candidateName} has been saved to your OneDrive Stellar Reports folder."
+
+      elseActions:
+        - kind: SendActivity
+          id: sendActivity_eJ8uCf
+          activity:
+            text:
+              - No problem — let me know what you'd like to adjust and I'll update the details.
